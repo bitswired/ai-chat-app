@@ -68,7 +68,9 @@ export const chatRouter = createTRPCRouter({
         },
       });
 
-      const messages = chat.messages;
+      const totalMessageLength = chat.messages.length;
+      const messages = chat.messages
+        .slice(totalMessageLength > 10 ? -10 : totalMessageLength * -1);
 
       const openai = await getOpenaiClient();
 
@@ -104,13 +106,13 @@ export const chatRouter = createTRPCRouter({
             create: [
               {
                 text: input.message,
-                position: messages.length,
+                position: totalMessageLength,
                 role: "user",
                 User: { connect: { id: ctx.session.user.id } },
               },
               {
                 text: content,
-                position: messages.length + 1,
+                position: totalMessageLength + 1,
                 role: "assistant",
                 User: { connect: { id: ctx.session.user.id } },
               },
